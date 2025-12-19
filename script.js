@@ -40,12 +40,12 @@ function setupPhrase() {
     const phrase = phraseInput.value.trim().toUpperCase();
     
     if (!phrase) {
-        showStatus('Inserisci una frase valida!', 'error');
+        showStatus('Inserisci una frase valida!', 'error', false);
         return;
     }
     
     if (phrase.length > MAX_CELLS) {
-        showStatus('La frase è troppo lunga! Massimo 70 caratteri.', 'error');
+        showStatus('La frase è troppo lunga! Massimo 70 caratteri.', 'error', false);
         return;
     }
     
@@ -63,7 +63,7 @@ function setupPhrase() {
         const char = phrase[i];
         gameState.board[i] = {
             char: char,
-            isLetter: /[A-Z]/.test(char)
+            isLetter: /[A-ZÀÈÉÌÒÙ]/.test(char)
         };
     }
     
@@ -82,7 +82,7 @@ function setupPhrase() {
     player1Section.classList.add('hidden');
     player2Section.classList.remove('hidden');
     
-    showStatus('Frase impostata! Giocatore 2, inizia a indovinare le lettere!', 'success');
+    showStatus('Frase impostata! Giocatore 2, inizia a indovinare le lettere!', 'success', true);
     
     // Clear inputs
     phraseInput.value = '';
@@ -119,13 +119,13 @@ function updateBoard() {
 function guessLetter() {
     const letter = letterInput.value.trim().toUpperCase();
     
-    if (!letter || !/[A-Z]/.test(letter)) {
-        showStatus('Inserisci una lettera valida (A-Z)!', 'error');
+    if (!letter || !/^[A-ZÀÈÉÌÒÙ]$/.test(letter)) {
+        showStatus('Inserisci una lettera valida (A-Z)!', 'error', false);
         return;
     }
     
     if (gameState.guessedLetters.has(letter)) {
-        showStatus('Hai già provato questa lettera!', 'error');
+        showStatus('Hai già provato questa lettera!', 'error', false);
         return;
     }
     
@@ -149,9 +149,9 @@ function guessLetter() {
     
     // Show status
     if (found) {
-        showStatus(`Ottimo! La lettera "${letter}" è presente!`, 'success');
+        showStatus(`Ottimo! La lettera "${letter}" è presente!`, 'success', false);
     } else {
-        showStatus(`La lettera "${letter}" non è presente.`, 'info');
+        showStatus(`La lettera "${letter}" non è presente.`, 'info', false);
     }
     
     // Check if the puzzle is solved
@@ -175,19 +175,19 @@ function checkWin() {
     const totalLetters = gameState.board.filter(cell => cell.isLetter).length;
     
     if (gameState.revealedCells.size === totalLetters && totalLetters > 0) {
-        showStatus('🎉 Complimenti! Hai indovinato tutta la frase! 🎉', 'success');
+        showStatus('🎉 Complimenti! Hai indovinato tutta la frase! 🎉', 'success', true);
         guessButton.disabled = true;
         letterInput.disabled = true;
     }
 }
 
 // Show status message
-function showStatus(message, type) {
+function showStatus(message, type, persistent = true) {
     statusMessage.textContent = message;
     statusMessage.className = `status-message ${type}`;
     
-    // Auto-hide after 3 seconds for non-success messages
-    if (type !== 'success' || !message.includes('🎉')) {
+    // Auto-hide after 3 seconds for non-persistent messages
+    if (!persistent) {
         setTimeout(() => {
             statusMessage.textContent = '';
             statusMessage.className = 'status-message';
