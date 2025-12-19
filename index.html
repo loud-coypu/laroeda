@@ -429,7 +429,7 @@
             const letter = letterInput.value.trim().toUpperCase();
             
             if (!letter || !ITALIAN_LETTER_PATTERN.test(letter) || letter.length !== 1) {
-                showStatus('Inserisci una lettera valida (A-Z)!', 'error', false);
+                showStatus('Inserisci una lettera valida!', 'error', false);
                 return;
             }
             
