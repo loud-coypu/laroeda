@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Ruota della Fortuna - Due Giocatori</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        /* Game Board */
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(14, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 5px;
+            margin: 30px auto;
+            max-width: 900px;
+            background: #2c3e50;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .cell {
+            aspect-ratio: 1;
+            border: 2px solid #34495e;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .cell.empty {
+            background-color: #000;
+        }
+
+        .cell.letter {
+            background-color: #fff;
+            color: transparent;
+        }
+
+        .cell.revealed {
+            background-color: #3498db;
+            color: white;
+            animation: reveal 0.5s ease;
+        }
+
+        @keyframes reveal {
+            0% {
+                transform: rotateY(0deg);
+            }
+            50% {
+                transform: rotateY(90deg);
+            }
+            100% {
+                transform: rotateY(0deg);
+            }
+        }
+
+        /* Player Sections */
+        .player-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .player-section h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .player-section input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        .player-section input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .info {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background-color: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background-color: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #229954;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+            margin-top: 15px;
+        }
+
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+
+        .btn:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Guessed Letters */
+        .guessed-letters {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+        }
+
+        .guessed-letters p {
+            color: #2c3e50;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        #guessed-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .guessed-letter {
+            background-color: #ecf0f1;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .guessed-letter.correct {
+            background-color: #27ae60;
+            color: white;
+        }
+
+        .guessed-letter.incorrect {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        /* Status Message */
+        .status-message {
+            text-align: center;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .status-message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status-message.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        /* Hidden class */
+        .hidden {
+            display: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .cell {
+                font-size: 1em;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>La Ruota della Fortuna</h1>
+        <p class="subtitle">Gioco per Due Giocatori</p>
+        
+        <!-- Game Board -->
+        <div id="game-board" class="game-board"></div>
+        
+        <!-- Player 1 Controls -->
+        <div id="player1-section" class="player-section">
+            <h2>Giocatore 1 - Imposta la Frase</h2>
+            <input type="text" id="phrase-input" placeholder="Inserisci la frase (max 70 caratteri)" maxlength="70">
+            <button id="setup-button" class="btn btn-primary">Imposta Frase</button>
+            <p class="info">La frase sarà disposta sulle righe del tabellone</p>
+        </div>
+        
+        <!-- Player 2 Controls -->
+        <div id="player2-section" class="player-section hidden">
+            <h2>Giocatore 2 - Indovina le Lettere</h2>
+            <input type="text" id="letter-input" placeholder="Inserisci una lettera" maxlength="1">
+            <button id="guess-button" class="btn btn-success">Scopri Lettera</button>
+            <div class="guessed-letters">
+                <p>Lettere provate:</p>
+                <div id="guessed-list"></div>
+            </div>
+            <button id="reset-button" class="btn btn-secondary">Nuova Partita</button>
+        </div>
+        
+        <!-- Status Message -->
+        <div id="status-message" class="status-message"></div>
+    </div>
+    
+    <script>
+        // Game state
+        let gameState = {
+            phrase: '',
+            board: [],
+            guessedLetters: new Set(),
+            revealedCells: new Set(),
+            isSetup: false,
+            totalLetters: 0
+        };
+
+        // Constants
+        const ROWS = 5;
+        const COLS = 14;
+        const MAX_CELLS = ROWS * COLS;
+        const ITALIAN_LETTER_PATTERN = /[A-ZÀÈÉÌÒÙ]/;
+
+        // DOM Elements
+        const gameBoard = document.getElementById('game-board');
+        const phraseInput = document.getElementById('phrase-input');
+        const setupButton = document.getElementById('setup-button');
+        const letterInput = document.getElementById('letter-input');
+        const guessButton = document.getElementById('guess-button');
+        const resetButton = document.getElementById('reset-button');
+        const player1Section = document.getElementById('player1-section');
+        const player2Section = document.getElementById('player2-section');
+        const statusMessage = document.getElementById('status-message');
+        const guessedList = document.getElementById('guessed-list');
+
+        // Initialize the game board
+        function initializeBoard() {
+            gameBoard.innerHTML = '';
+            for (let i = 0; i < MAX_CELLS; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell empty';
+                cell.dataset.index = i;
+                gameBoard.appendChild(cell);
+            }
+        }
+
+        // Setup the phrase from Player 1
+        function setupPhrase() {
+            const phrase = phraseInput.value.trim().toUpperCase();
+            
+            if (!phrase) {
+                showStatus('Inserisci una frase valida!', 'error', false);
+                return;
+            }
+            
+            if (phrase.length > MAX_CELLS) {
+                showStatus('La frase è troppo lunga! Massimo 70 caratteri.', 'error', false);
+                return;
+            }
+            
+            // Reset game state
+            gameState = {
+                phrase: phrase,
+                board: [],
+                guessedLetters: new Set(),
+                revealedCells: new Set(),
+                isSetup: true,
+                totalLetters: 0
+            };
+            
+            // Populate the board array
+            for (let i = 0; i < phrase.length; i++) {
+                const char = phrase[i];
+                const isLetter = ITALIAN_LETTER_PATTERN.test(char);
+                gameState.board[i] = {
+                    char: char,
+                    isLetter: isLetter
+                };
+                if (isLetter) {
+                    gameState.totalLetters++;
+                }
+            }
+            
+            // Fill remaining cells as empty
+            for (let i = phrase.length; i < MAX_CELLS; i++) {
+                gameState.board[i] = {
+                    char: '',
+                    isLetter: false
+                };
+            }
+            
+            // Update the visual board
+            updateBoard();
+            
+            // Switch to Player 2 interface
+            player1Section.classList.add('hidden');
+            player2Section.classList.remove('hidden');
+            
+            showStatus('Frase impostata! Giocatore 2, inizia a indovinare le lettere!', 'success', true);
+            
+            // Clear inputs
+            phraseInput.value = '';
+            letterInput.focus();
+        }
+
+        // Update the visual board
+        function updateBoard() {
+            const cells = gameBoard.querySelectorAll('.cell');
+            
+            cells.forEach((cell, index) => {
+                const cellData = gameState.board[index];
+                
+                if (!cellData || !cellData.isLetter) {
+                    // Empty cell (space, punctuation, or beyond phrase)
+                    cell.className = 'cell empty';
+                    cell.textContent = '';
+                } else {
+                    // Letter cell
+                    if (gameState.revealedCells.has(index)) {
+                        // Revealed letter
+                        cell.className = 'cell revealed';
+                        cell.textContent = cellData.char;
+                    } else {
+                        // Hidden letter
+                        cell.className = 'cell letter';
+                        cell.textContent = '';
+                    }
+                }
+            });
+        }
+
+        // Handle letter guess from Player 2
+        function guessLetter() {
+            const letter = letterInput.value.trim().toUpperCase();
+            
+            if (!letter || !ITALIAN_LETTER_PATTERN.test(letter) || letter.length !== 1) {
+                showStatus('Inserisci una lettera valida!', 'error', false);
+                return;
+            }
+            
+            if (gameState.guessedLetters.has(letter)) {
+                showStatus('Hai già provato questa lettera!', 'error', false);
+                return;
+            }
+            
+            // Add to guessed letters
+            gameState.guessedLetters.add(letter);
+            
+            // Find all occurrences of the letter
+            let found = false;
+            gameState.board.forEach((cellData, index) => {
+                if (cellData.isLetter && cellData.char === letter) {
+                    gameState.revealedCells.add(index);
+                    found = true;
+                }
+            });
+            
+            // Update guessed letters display
+            updateGuessedLetters(letter, found);
+            
+            // Update the board
+            updateBoard();
+            
+            // Show status
+            if (found) {
+                showStatus(`Ottimo! La lettera "${letter}" è presente!`, 'success', false);
+            } else {
+                showStatus(`La lettera "${letter}" non è presente.`, 'info', false);
+            }
+            
+            // Check if the puzzle is solved
+            checkWin();
+            
+            // Clear input
+            letterInput.value = '';
+            letterInput.focus();
+        }
+
+        // Update the guessed letters display
+        function updateGuessedLetters(letter, isCorrect) {
+            const letterSpan = document.createElement('span');
+            letterSpan.className = `guessed-letter ${isCorrect ? 'correct' : 'incorrect'}`;
+            letterSpan.textContent = letter;
+            guessedList.appendChild(letterSpan);
+        }
+
+        // Check if all letters are revealed
+        function checkWin() {
+            if (gameState.revealedCells.size === gameState.totalLetters && gameState.totalLetters > 0) {
+                showStatus('🎉 Complimenti! Hai indovinato tutta la frase! 🎉', 'success', true);
+                guessButton.disabled = true;
+                letterInput.disabled = true;
+            }
+        }
+
+        // Show status message
+        function showStatus(message, type, persistent = true) {
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message ${type}`;
+            
+            // Auto-hide after 3 seconds for non-persistent messages
+            if (!persistent) {
+                setTimeout(() => {
+                    statusMessage.textContent = '';
+                    statusMessage.className = 'status-message';
+                }, 3000);
+            }
+        }
+
+        // Reset the game
+        function resetGame() {
+            gameState = {
+                phrase: '',
+                board: [],
+                guessedLetters: new Set(),
+                revealedCells: new Set(),
+                isSetup: false,
+                totalLetters: 0
+            };
+            
+            initializeBoard();
+            player1Section.classList.remove('hidden');
+            player2Section.classList.add('hidden');
+            statusMessage.textContent = '';
+            statusMessage.className = 'status-message';
+            guessedList.innerHTML = '';
+            phraseInput.value = '';
+            letterInput.value = '';
+            guessButton.disabled = false;
+            letterInput.disabled = false;
+            phraseInput.focus();
+        }
+
+        // Event Listeners
+        setupButton.addEventListener('click', setupPhrase);
+        guessButton.addEventListener('click', guessLetter);
+        resetButton.addEventListener('click', resetGame);
+
+        // Allow Enter key to submit
+        phraseInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                setupPhrase();
+            }
+        });
+
+        letterInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                guessLetter();
+            }
+        });
+
+        // Initialize on load
+        initializeBoard();
+        phraseInput.focus();
+    </script>
+</body>
+</html>
