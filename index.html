@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Ruota della Fortuna - Due Giocatori</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>La Ruota della Fortuna</h1>
+        <p class="subtitle">Gioco per Due Giocatori</p>
+        
+        <!-- Game Board -->
+        <div id="game-board" class="game-board"></div>
+        
+        <!-- Player 1 Controls -->
+        <div id="player1-section" class="player-section">
+            <h2>Giocatore 1 - Imposta la Frase</h2>
+            <input type="text" id="phrase-input" placeholder="Inserisci la frase (max 70 caratteri)" maxlength="70">
+            <button id="setup-button" class="btn btn-primary">Imposta Frase</button>
+            <p class="info">La frase sarà disposta sulle righe del tabellone</p>
+        </div>
+        
+        <!-- Player 2 Controls -->
+        <div id="player2-section" class="player-section hidden">
+            <h2>Giocatore 2 - Indovina le Lettere</h2>
+            <input type="text" id="letter-input" placeholder="Inserisci una lettera" maxlength="1">
+            <button id="guess-button" class="btn btn-success">Scopri Lettera</button>
+            <div class="guessed-letters">
+                <p>Lettere provate:</p>
+                <div id="guessed-list"></div>
+            </div>
+            <button id="reset-button" class="btn btn-secondary">Nuova Partita</button>
+        </div>
+        
+        <!-- Status Message -->
+        <div id="status-message" class="status-message"></div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
