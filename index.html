@@ -359,6 +359,7 @@
             for (let row = 0; row < ROWS; row++) {
                 const rowLength = ROW_LENGTHS[row];
                 const offset = Math.floor((COLS - rowLength) / 2);
+                const trailingOffset = COLS - rowLength - offset;
                 
                 // Add leading empty cells for centering
                 for (let i = 0; i < offset; i++) {
@@ -378,7 +379,7 @@
                 }
                 
                 // Add trailing empty cells for centering
-                for (let i = 0; i < COLS - rowLength - offset; i++) {
+                for (let i = 0; i < trailingOffset; i++) {
                     const cell = document.createElement('div');
                     cell.className = 'cell empty';
                     cell.style.visibility = 'hidden';
