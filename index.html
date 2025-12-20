@@ -62,7 +62,7 @@
         .game-board {
             display: grid;
             grid-template-columns: repeat(14, 1fr);
-            grid-template-rows: repeat(5, 1fr);
+            grid-template-rows: repeat(4, 1fr);
             gap: 5px;
             margin: 30px auto;
             max-width: 900px;
@@ -298,7 +298,7 @@
             <input type="text" id="title-input" placeholder="Inserisci il titolo (opzionale)" maxlength="50" aria-label="Inserisci il titolo della frase">
             <button id="title-button" class="btn btn-primary">Salva Titolo</button>
             <p class="info">Il titolo sarà visibile sopra il tabellone</p>
-            <input type="text" id="phrase-input" placeholder="Inserisci la frase (max 70 caratteri)" maxlength="70">
+            <input type="text" id="phrase-input" placeholder="Inserisci la frase (max 52 caratteri)" maxlength="52">
             <button id="setup-button" class="btn btn-primary">Imposta Frase</button>
             <p class="info">La frase sarà disposta sulle righe del tabellone</p>
         </div>
@@ -324,7 +324,7 @@
         let gameState = {
             phrase: '',
             title: '',
-            board: [],
+            board: {},
             guessedLetters: new Set(),
             revealedCells: new Set(),
             isSetup: false,
@@ -332,9 +332,10 @@
         };
 
         // Constants
-        const ROWS = 5;
+        const ROWS = 4;
         const COLS = 14;
-        const MAX_CELLS = ROWS * COLS;
+        const ROW_LENGTHS = [12, 14, 14, 12]; // Cells per row
+        const MAX_CELLS = ROW_LENGTHS.reduce((sum, len) => sum + len, 0); // 52 total
         const ITALIAN_LETTER_PATTERN = /[A-ZÀÈÉÌÒÙ]/;
 
         // DOM Elements
@@ -355,11 +356,34 @@
         // Initialize the game board
         function initializeBoard() {
             gameBoard.innerHTML = '';
-            for (let i = 0; i < MAX_CELLS; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'cell empty';
-                cell.dataset.index = i;
-                gameBoard.appendChild(cell);
+            for (let row = 0; row < ROWS; row++) {
+                const rowLength = ROW_LENGTHS[row];
+                const offset = Math.floor((COLS - rowLength) / 2);
+                
+                // Add leading empty cells for centering
+                for (let i = 0; i < offset; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell empty';
+                    cell.style.visibility = 'hidden';
+                    gameBoard.appendChild(cell);
+                }
+                
+                // Add actual cells for this row
+                for (let i = 0; i < rowLength; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell empty';
+                    cell.dataset.row = row;
+                    cell.dataset.col = i;
+                    gameBoard.appendChild(cell);
+                }
+                
+                // Add trailing empty cells for centering
+                for (let i = 0; i < COLS - rowLength - offset; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell empty';
+                    cell.style.visibility = 'hidden';
+                    gameBoard.appendChild(cell);
+                }
             }
         }
 
@@ -395,7 +419,7 @@
             }
             
             if (phrase.length > MAX_CELLS) {
-                showStatus('La frase è troppo lunga! Massimo 70 caratteri.', 'error', false);
+                showStatus(`La frase è troppo lunga! Massimo ${MAX_CELLS} caratteri.`, 'error', false);
                 return;
             }
             
@@ -403,32 +427,30 @@
             gameState = {
                 phrase: phrase,
                 title: gameState.title, // Preserve the title
-                board: [],
+                board: {},
                 guessedLetters: new Set(),
                 revealedCells: new Set(),
                 isSetup: true,
                 totalLetters: 0
             };
             
-            // Populate the board array
-            for (let i = 0; i < phrase.length; i++) {
-                const char = phrase[i];
-                const isLetter = ITALIAN_LETTER_PATTERN.test(char);
-                gameState.board[i] = {
-                    char: char,
-                    isLetter: isLetter
-                };
-                if (isLetter) {
-                    gameState.totalLetters++;
+            // Distribute phrase across rows
+            let charIndex = 0;
+            for (let row = 0; row < ROWS && charIndex < phrase.length; row++) {
+                const rowLength = ROW_LENGTHS[row];
+                for (let col = 0; col < rowLength && charIndex < phrase.length; col++) {
+                    const char = phrase[charIndex];
+                    const isLetter = ITALIAN_LETTER_PATTERN.test(char);
+                    const key = `${row}-${col}`;
+                    gameState.board[key] = {
+                        char: char,
+                        isLetter: isLetter
+                    };
+                    if (isLetter) {
+                        gameState.totalLetters++;
+                    }
+                    charIndex++;
                 }
-            }
-            
-            // Fill remaining cells as empty
-            for (let i = phrase.length; i < MAX_CELLS; i++) {
-                gameState.board[i] = {
-                    char: '',
-                    isLetter: false
-                };
             }
             
             // Update the visual board
@@ -447,10 +469,13 @@
 
         // Update the visual board
         function updateBoard() {
-            const cells = gameBoard.querySelectorAll('.cell');
+            const cells = gameBoard.querySelectorAll('.cell[data-row]');
             
-            cells.forEach((cell, index) => {
-                const cellData = gameState.board[index];
+            cells.forEach((cell) => {
+                const row = cell.dataset.row;
+                const col = cell.dataset.col;
+                const key = `${row}-${col}`;
+                const cellData = gameState.board[key];
                 
                 if (!cellData || !cellData.isLetter) {
                     // Empty cell (space, punctuation, or beyond phrase)
@@ -458,7 +483,7 @@
                     cell.textContent = '';
                 } else {
                     // Letter cell
-                    if (gameState.revealedCells.has(index)) {
+                    if (gameState.revealedCells.has(key)) {
                         // Revealed letter
                         cell.className = 'cell revealed';
                         cell.textContent = cellData.char;
@@ -490,9 +515,10 @@
             
             // Find all occurrences of the letter
             let found = false;
-            gameState.board.forEach((cellData, index) => {
+            Object.keys(gameState.board).forEach((key) => {
+                const cellData = gameState.board[key];
                 if (cellData.isLetter && cellData.char === letter) {
-                    gameState.revealedCells.add(index);
+                    gameState.revealedCells.add(key);
                     found = true;
                 }
             });
@@ -554,7 +580,7 @@
             gameState = {
                 phrase: '',
                 title: '',
-                board: [],
+                board: {},
                 guessedLetters: new Set(),
                 revealedCells: new Set(),
                 isSetup: false,

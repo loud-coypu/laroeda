@@ -13,7 +13,7 @@ Un gioco per due giocatori ispirato alla Ruota della Fortuna!
 
 ## 🎯 Caratteristiche
 
-- Tabellone di gioco 14 colonne x 5 righe (70 celle totali)
+- Tabellone di gioco con 4 righe centrate (12, 14, 14, 12 celle - 52 celle totali)
 - Supporto completo per caratteri accentati italiani (À, È, É, Ì, Ò, Ù)
 - Design reattivo e animazioni fluide
 - Interfaccia completamente in italiano
