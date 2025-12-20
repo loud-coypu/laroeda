@@ -44,6 +44,20 @@
             font-size: 1.1em;
         }
 
+        /* Title Display */
+        .title-display {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            margin: 20px auto 10px;
+            border-radius: 10px;
+            font-size: 1.8em;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            max-width: 900px;
+        }
+
         /* Game Board */
         .game-board {
             display: grid;
@@ -272,12 +286,18 @@
         <h1>La Ruota della Fortuna</h1>
         <p class="subtitle">Gioco per Due Giocatori</p>
         
+        <!-- Title Display -->
+        <div id="title-display" class="title-display hidden"></div>
+        
         <!-- Game Board -->
         <div id="game-board" class="game-board"></div>
         
         <!-- Player 1 Controls -->
         <div id="player1-section" class="player-section">
             <h2>Giocatore 1 - Imposta la Frase</h2>
+            <input type="text" id="title-input" placeholder="Inserisci il titolo (opzionale)" maxlength="50" aria-label="Inserisci il titolo della frase">
+            <button id="title-button" class="btn btn-primary">Salva Titolo</button>
+            <p class="info">Il titolo sarà visibile sopra il tabellone</p>
             <input type="text" id="phrase-input" placeholder="Inserisci la frase (max 70 caratteri)" maxlength="70">
             <button id="setup-button" class="btn btn-primary">Imposta Frase</button>
             <p class="info">La frase sarà disposta sulle righe del tabellone</p>
@@ -303,6 +323,7 @@
         // Game state
         let gameState = {
             phrase: '',
+            title: '',
             board: [],
             guessedLetters: new Set(),
             revealedCells: new Set(),
@@ -320,6 +341,9 @@
         const gameBoard = document.getElementById('game-board');
         const phraseInput = document.getElementById('phrase-input');
         const setupButton = document.getElementById('setup-button');
+        const titleInput = document.getElementById('title-input');
+        const titleButton = document.getElementById('title-button');
+        const titleDisplay = document.getElementById('title-display');
         const letterInput = document.getElementById('letter-input');
         const guessButton = document.getElementById('guess-button');
         const resetButton = document.getElementById('reset-button');
@@ -339,6 +363,28 @@
             }
         }
 
+        // Set and display the title
+        function setTitle() {
+            const title = titleInput.value.trim();
+            
+            if (!title) {
+                showStatus('Inserisci un titolo valido!', 'error', false);
+                return;
+            }
+            
+            // Save title to game state
+            gameState.title = title;
+            
+            // Display the title
+            titleDisplay.textContent = title;
+            titleDisplay.classList.remove('hidden');
+            
+            showStatus('Titolo salvato con successo!', 'success', false);
+            
+            // Clear input
+            titleInput.value = '';
+        }
+
         // Setup the phrase from Player 1
         function setupPhrase() {
             const phrase = phraseInput.value.trim().toUpperCase();
@@ -356,6 +402,7 @@
             // Reset game state
             gameState = {
                 phrase: phrase,
+                title: gameState.title, // Preserve the title
                 board: [],
                 guessedLetters: new Set(),
                 revealedCells: new Set(),
@@ -506,6 +553,7 @@
         function resetGame() {
             gameState = {
                 phrase: '',
+                title: '',
                 board: [],
                 guessedLetters: new Set(),
                 revealedCells: new Set(),
@@ -516,10 +564,13 @@
             initializeBoard();
             player1Section.classList.remove('hidden');
             player2Section.classList.add('hidden');
+            titleDisplay.classList.add('hidden');
+            titleDisplay.textContent = '';
             statusMessage.textContent = '';
             statusMessage.className = 'status-message';
             guessedList.innerHTML = '';
             phraseInput.value = '';
+            titleInput.value = '';
             letterInput.value = '';
             guessButton.disabled = false;
             letterInput.disabled = false;
@@ -528,10 +579,17 @@
 
         // Event Listeners
         setupButton.addEventListener('click', setupPhrase);
+        titleButton.addEventListener('click', setTitle);
         guessButton.addEventListener('click', guessLetter);
         resetButton.addEventListener('click', resetGame);
 
         // Allow Enter key to submit
+        titleInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                setTitle();
+            }
+        });
+
         phraseInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 setupPhrase();
