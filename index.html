@@ -334,11 +334,14 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎡 La Ruota della Fortuna 🎡</h1>
-
         <!-- Setup Section for Player 1 -->
         <div class="setup-section" id="setupSection">
             <h2>Sfida</h2>
+            <div class="input-group">
+                <label for="numPlayers">Numero di giocatori:</label>
+                <input type="number" id="numPlayers" min="1" max="10" value="1" placeholder="1">
+                <small>Da 1 a 10 giocatori</small>
+            </div>
             <div class="input-group">
                 <label for="titleInput">Titolo (categoria):</label>
                 <input type="text" id="titleInput" maxlength="25" placeholder="Es: FILM FAMOSO">
@@ -375,7 +378,7 @@
             </div>
 
             <div class="info-box">
-                <h3>🎯 Giocatore 2 - Concorrente</h3>
+                <h3 id="playerDisplay">🎯 Giocatore</h3>
                 <div class="guess-section">
                     <input type="text" id="guessInput" placeholder="Inserisci lettera/e" maxlength="10">
                     <button onclick="guessLetter()">Scopri Lettera</button>
@@ -405,7 +408,9 @@
             correctLetters: new Set(),
             incorrectLetters: new Set(),
             gameStarted: false,
-            gameWon: false
+            gameWon: false,
+            numPlayers: 1,
+            currentPlayer: 1
         };
 
         const rowSizes = [12, 14, 14, 12];
@@ -421,11 +426,6 @@
             { title: "FILM", phrase: "LA VITA È BELLA" },
             { title: "FILM", phrase: "PER UN PUGNO DI DOLLARI" },
             { title: "FILM", phrase: "RITORNO AL FUTURO PRIMA PARTE" },
-            { title: "CITTÀ", phrase: "ROMA LA CITTÀ ETERNA" },
-            { title: "CITTÀ", phrase: "FIRENZE CITTÀ DEL RINASCIMENTO" },
-            { title: "CITTÀ", phrase: "VENEZIA LA CITTÀ DEI CANALI" },
-            { title: "CITTÀ", phrase: "MILANO CAPITALE DELLA MODA" },
-            { title: "CITTÀ", phrase: "NAPOLI CITTÀ DEL VESUVIO" },
             { title: "ANIMALE", phrase: "ELEFANTE AFRICANO NELLA SAVANA" },
             { title: "ANIMALE", phrase: "TIGRE DEL BENGALA IN INDIA" },
             { title: "ANIMALE", phrase: "AQUILA REALE SULLE MONTAGNE" },
@@ -485,23 +485,7 @@
             { title: "FIORE", phrase: "GIRASOLE GIALLO CHE SEGUE IL SOLE" },
             { title: "FIORE", phrase: "TULIPANO COLORATO DALLA OLANDA" },
             { title: "FIORE", phrase: "MARGHERITA BIANCA NEL PRATO" },
-            { title: "FIORE", phrase: "ORCHIDEA ELEGANTE MOLTO RARA" },
-            { title: "PIANETA", phrase: "TERRA IL PIANETA BLU" },
-            { title: "PIANETA", phrase: "MARTE IL PIANETA ROSSO" },
-            { title: "PIANETA", phrase: "GIOVE IL GIGANTE GASSOSO" },
-            { title: "PIANETA", phrase: "SATURNO CON GLI ANELLI" },
-            { title: "PIANETA", phrase: "VENERE LA STELLA DEL MATTINO" },
-            { title: "STAGIONE", phrase: "PRIMAVERA LA STAGIONE DEI FIORI" },
-            { title: "STAGIONE", phrase: "ESTATE CALDA CON IL SOLE" },
-            { title: "STAGIONE", phrase: "AUTUNNO CON LE FOGLIE GIALLE" },
-            { title: "STAGIONE", phrase: "INVERNO FREDDO CON LA NEVE" },
-            { title: "GIORNO", phrase: "LUNEDÌ PRIMO GIORNO DELLA SETTIMANA" },
-            { title: "GIORNO", phrase: "MARTEDÌ SECONDO GIORNO DI LAVORO" },
-            { title: "GIORNO", phrase: "MERCOLEDÌ GIORNO DI METÀ SETTIMANA" },
-            { title: "GIORNO", phrase: "GIOVEDÌ QUASI FINE SETTIMANA" },
-            { title: "GIORNO", phrase: "VENERDÌ ULTIMO GIORNO DI LAVORO" },
-            { title: "GIORNO", phrase: "SABATO PRIMO GIORNO DI RIPOSO" },
-            { title: "GIORNO", phrase: "DOMENICA GIORNO DI FESTA" },
+            { title: "FIORE", phrase: "ORCHIDEA ELEGANTE E MOLTO RARA" },
             { title: "PROVERBIO", phrase: "CHI DORME NON PIGLIA PESCI" },
             { title: "PROVERBIO", phrase: "MEGLIO TARDI CHE MAI" },
             { title: "PROVERBIO", phrase: "CHI FA DA SÉ FA PER TRE" },
@@ -516,7 +500,8 @@
             document.getElementById('titleInput').value = couple.title;
             document.getElementById('phraseInput').value = couple.phrase;
             
-            showMessage('Frase automatica caricata! Clicca "Imposta Frase" per iniziare.', 'info');
+            // Automatically setup the phrase
+            setupPhrase();
         }
 
         function normalizeText(text) {
@@ -555,6 +540,8 @@
                 return;
             }
 
+            const numPlayers = parseInt(document.getElementById('numPlayers').value) || 1;
+            
             gameState.title = normalizeText(title);
             gameState.phrase = normalizeText(phrase);
             gameState.normalizedPhrase = removeAccents(phrase);
@@ -564,6 +551,8 @@
             gameState.incorrectLetters = new Set();
             gameState.gameStarted = true;
             gameState.gameWon = false;
+            gameState.numPlayers = numPlayers;
+            gameState.currentPlayer = 1;
 
             // Hide setup, show game
             document.getElementById('setupSection').classList.add('hidden');
@@ -573,6 +562,9 @@
 
             // Display title
             document.getElementById('titleDisplay').textContent = gameState.title;
+
+            // Update player display
+            updatePlayerDisplay();
 
             // Create board
             createBoard();
@@ -667,6 +659,22 @@
             }
         }
 
+        function updatePlayerDisplay() {
+            const playerHeader = document.getElementById('playerDisplay');
+            if (gameState.numPlayers === 1) {
+                playerHeader.textContent = '🎯 Giocatore';
+            } else {
+                playerHeader.textContent = `🎯 Giocatore ${gameState.currentPlayer}`;
+            }
+        }
+
+        function switchPlayer() {
+            if (gameState.numPlayers > 1) {
+                gameState.currentPlayer = (gameState.currentPlayer % gameState.numPlayers) + 1;
+                updatePlayerDisplay();
+            }
+        }
+
         function guessLetter() {
             if (!gameState.gameStarted || gameState.gameWon) return;
 
@@ -722,6 +730,7 @@
                 showMessage('Bravo! Hai trovato delle lettere!', 'success');
             } else if (!gameState.gameWon) {
                 showMessage('Nessuna lettera trovata. Riprova!', 'info');
+                switchPlayer();
             }
 
             document.getElementById('guessInput').focus();
@@ -800,7 +809,9 @@
                 correctLetters: new Set(),
                 incorrectLetters: new Set(),
                 gameStarted: false,
-                gameWon: false
+                gameWon: false,
+                numPlayers: 1,
+                currentPlayer: 1
             };
 
             // Reset UI
