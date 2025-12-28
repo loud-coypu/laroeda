@@ -293,6 +293,16 @@
             margin-top: 20px;
         }
 
+        .setup-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .setup-buttons button {
+            flex: 1;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
@@ -328,7 +338,7 @@
 
         <!-- Setup Section for Player 1 -->
         <div class="setup-section" id="setupSection">
-            <h2>👤 Giocatore 1 - Sfidante</h2>
+            <h2>Sfida</h2>
             <div class="input-group">
                 <label for="titleInput">Titolo (categoria):</label>
                 <input type="text" id="titleInput" maxlength="25" placeholder="Es: FILM FAMOSO">
@@ -339,7 +349,10 @@
                 <input type="text" id="phraseInput" maxlength="50" placeholder="Es: IL SIGNORE DEGLI ANELLI">
                 <small>Massimo 50 caratteri, parole di massimo 14 lettere</small>
             </div>
-            <button onclick="setupPhrase()">Imposta Frase</button>
+            <div class="setup-buttons">
+                <button onclick="setupPhrase()">Imposta Frase</button>
+                <button onclick="setRandomPhrase()" style="background: linear-gradient(135deg, #28a745 0%, #20873a 100%);">🎲 Frase Automatica</button>
+            </div>
         </div>
 
         <!-- Game Board -->
@@ -396,6 +409,115 @@
         };
 
         const rowSizes = [12, 14, 14, 12];
+
+        const phraseCouples = [
+            { title: "FILM", phrase: "IL SIGNORE DEGLI ANELLI" },
+            { title: "FILM", phrase: "LA DOLCE VITA DI ROMA" },
+            { title: "FILM", phrase: "GUERRE STELLARI UNA NUOVA SPERANZA" },
+            { title: "FILM", phrase: "IL PADRINO DI FRANCIS COPPOLA" },
+            { title: "FILM", phrase: "UNA NOTTE DA LEONI" },
+            { title: "FILM", phrase: "IL BUONO IL BRUTTO E IL CATTIVO" },
+            { title: "FILM", phrase: "C ERA UNA VOLTA IN AMERICA" },
+            { title: "FILM", phrase: "LA VITA È BELLA" },
+            { title: "FILM", phrase: "PER UN PUGNO DI DOLLARI" },
+            { title: "FILM", phrase: "RITORNO AL FUTURO PRIMA PARTE" },
+            { title: "CITTÀ", phrase: "ROMA LA CITTÀ ETERNA" },
+            { title: "CITTÀ", phrase: "FIRENZE CITTÀ DEL RINASCIMENTO" },
+            { title: "CITTÀ", phrase: "VENEZIA LA CITTÀ DEI CANALI" },
+            { title: "CITTÀ", phrase: "MILANO CAPITALE DELLA MODA" },
+            { title: "CITTÀ", phrase: "NAPOLI CITTÀ DEL VESUVIO" },
+            { title: "ANIMALE", phrase: "ELEFANTE AFRICANO NELLA SAVANA" },
+            { title: "ANIMALE", phrase: "TIGRE DEL BENGALA IN INDIA" },
+            { title: "ANIMALE", phrase: "AQUILA REALE SULLE MONTAGNE" },
+            { title: "ANIMALE", phrase: "DELFINO CHE NUOTA NEL MARE" },
+            { title: "ANIMALE", phrase: "PANDA GIGANTE DALLA CINA" },
+            { title: "CIBO", phrase: "PIZZA MARGHERITA CON POMODORO E MOZZARELLA" },
+            { title: "CIBO", phrase: "SPAGHETTI ALLA CARBONARA ALLA ROMANA" },
+            { title: "CIBO", phrase: "TIRAMISÙ CON CAFFÈ E MASCARPONE" },
+            { title: "CIBO", phrase: "LASAGNE AL FORNO CON RAGÙ" },
+            { title: "CIBO", phrase: "GELATO ARTIGIANALE AL PISTACCHIO" },
+            { title: "SPORT", phrase: "PARTITA DI CALCIO ALLO STADIO" },
+            { title: "SPORT", phrase: "GARA DI NUOTO IN PISCINA" },
+            { title: "SPORT", phrase: "TORNEO DI TENNIS AL CIRCOLO" },
+            { title: "SPORT", phrase: "CORSA IN BICICLETTA SUI MONTI" },
+            { title: "SPORT", phrase: "CAMPIONATO MONDIALE DI PALLAVOLO" },
+            { title: "CANTANTE", phrase: "LUCIO BATTISTI IL GRANDE ARTISTA" },
+            { title: "CANTANTE", phrase: "MINA LA TIGRE DI CREMONA" },
+            { title: "CANTANTE", phrase: "VASCO ROSSI IL BLASCO NAZIONALE" },
+            { title: "CANTANTE", phrase: "LAURA PAUSINI STAR NEL MONDO" },
+            { title: "CANTANTE", phrase: "EROS RAMAZZOTTI MUSICA PER TUTTI" },
+            { title: "LIBRO", phrase: "LE AVVENTURE DI PINOCCHIO" },
+            { title: "LIBRO", phrase: "CUORE LIBRO DI EDMONDO DE AMICIS" },
+            { title: "LIBRO", phrase: "LA DIVINA COMMEDIA DI DANTE" },
+            { title: "LIBRO", phrase: "I PROMESSI SPOSI DI MANZONI" },
+            { title: "LIBRO", phrase: "IL NOME DELLA ROSA DI ECO" },
+            { title: "MESTIERE", phrase: "IL MEDICO CURA I PAZIENTI" },
+            { title: "MESTIERE", phrase: "INSEGNANTE DI SCUOLA ELEMENTARE" },
+            { title: "MESTIERE", phrase: "INGEGNERE CHE COSTRUISCE PONTI" },
+            { title: "MESTIERE", phrase: "CUOCO IN UN RISTORANTE STELLATO" },
+            { title: "MESTIERE", phrase: "ARCHITETTO CHE PROGETTA CASE" },
+            { title: "FRUTTO", phrase: "MELA ROSSA MOLTO CROCCANTE" },
+            { title: "FRUTTO", phrase: "BANANA GIALLA MOLTO DOLCE" },
+            { title: "FRUTTO", phrase: "ARANCIA SUCCOSA PIENA DI VITAMINE" },
+            { title: "FRUTTO", phrase: "FRAGOLA ROSSA CON I PUNTINI" },
+            { title: "FRUTTO", phrase: "PESCA MATURA DAL NOCCIOLO DURO" },
+            { title: "STRUMENTO", phrase: "PIANOFORTE A CODA DA CONCERTO" },
+            { title: "STRUMENTO", phrase: "CHITARRA ELETTRICA DA ROCK" },
+            { title: "STRUMENTO", phrase: "VIOLINO SUONATO IN ORCHESTRA" },
+            { title: "STRUMENTO", phrase: "BATTERIA CON PIATTI E TAMBURI" },
+            { title: "STRUMENTO", phrase: "FLAUTO DOLCE PER I BAMBINI" },
+            { title: "NAZIONE", phrase: "ITALIA PATRIA DELLA PIZZA" },
+            { title: "NAZIONE", phrase: "FRANCIA TERRA DELLA TORRE EIFFEL" },
+            { title: "NAZIONE", phrase: "SPAGNA PAESE DELLA PAELLA" },
+            { title: "NAZIONE", phrase: "GERMANIA PATRIA DELLA BIRRA" },
+            { title: "NAZIONE", phrase: "GIAPPONE TERRA DEL SOL LEVANTE" },
+            { title: "MARE", phrase: "MARE MEDITERRANEO SOTTO IL SOLE" },
+            { title: "MARE", phrase: "MARE ADRIATICO COSTA EST ITALIANA" },
+            { title: "MARE", phrase: "MARE TIRRENO SULLA COSTA OVEST" },
+            { title: "MARE", phrase: "MARE IONIO NEL SUD ITALIA" },
+            { title: "MARE", phrase: "MARE LIGURE IN LIGURIA" },
+            { title: "MONTE", phrase: "MONTE BIANCO LA VETTA PIÙ ALTA" },
+            { title: "MONTE", phrase: "MONTE ROSA NELLE ALPI" },
+            { title: "MONTE", phrase: "CERVINO MONTAGNA A PUNTA" },
+            { title: "MONTE", phrase: "GRAN SASSO IN ABRUZZO" },
+            { title: "MONTE", phrase: "ETNA VULCANO ATTIVO IN SICILIA" },
+            { title: "FIORE", phrase: "ROSA ROSSA DEL GIARDINO" },
+            { title: "FIORE", phrase: "GIRASOLE GIALLO CHE SEGUE IL SOLE" },
+            { title: "FIORE", phrase: "TULIPANO COLORATO DALLA OLANDA" },
+            { title: "FIORE", phrase: "MARGHERITA BIANCA NEL PRATO" },
+            { title: "FIORE", phrase: "ORCHIDEA ELEGANTE MOLTO RARA" },
+            { title: "PIANETA", phrase: "TERRA IL PIANETA BLU" },
+            { title: "PIANETA", phrase: "MARTE IL PIANETA ROSSO" },
+            { title: "PIANETA", phrase: "GIOVE IL GIGANTE GASSOSO" },
+            { title: "PIANETA", phrase: "SATURNO CON GLI ANELLI" },
+            { title: "PIANETA", phrase: "VENERE LA STELLA DEL MATTINO" },
+            { title: "STAGIONE", phrase: "PRIMAVERA LA STAGIONE DEI FIORI" },
+            { title: "STAGIONE", phrase: "ESTATE CALDA CON IL SOLE" },
+            { title: "STAGIONE", phrase: "AUTUNNO CON LE FOGLIE GIALLE" },
+            { title: "STAGIONE", phrase: "INVERNO FREDDO CON LA NEVE" },
+            { title: "GIORNO", phrase: "LUNEDÌ PRIMO GIORNO DELLA SETTIMANA" },
+            { title: "GIORNO", phrase: "MARTEDÌ SECONDO GIORNO DI LAVORO" },
+            { title: "GIORNO", phrase: "MERCOLEDÌ GIORNO DI METÀ SETTIMANA" },
+            { title: "GIORNO", phrase: "GIOVEDÌ QUASI FINE SETTIMANA" },
+            { title: "GIORNO", phrase: "VENERDÌ ULTIMO GIORNO DI LAVORO" },
+            { title: "GIORNO", phrase: "SABATO PRIMO GIORNO DI RIPOSO" },
+            { title: "GIORNO", phrase: "DOMENICA GIORNO DI FESTA" },
+            { title: "PROVERBIO", phrase: "CHI DORME NON PIGLIA PESCI" },
+            { title: "PROVERBIO", phrase: "MEGLIO TARDI CHE MAI" },
+            { title: "PROVERBIO", phrase: "CHI FA DA SÉ FA PER TRE" },
+            { title: "PROVERBIO", phrase: "CHI TROPPO VUOLE NULLA STRINGE" },
+            { title: "PROVERBIO", phrase: "ANNO NUOVO VITA NUOVA" }
+        ];
+
+        function setRandomPhrase() {
+            const randomIndex = Math.floor(Math.random() * phraseCouples.length);
+            const couple = phraseCouples[randomIndex];
+            
+            document.getElementById('titleInput').value = couple.title;
+            document.getElementById('phraseInput').value = couple.phrase;
+            
+            showMessage('Frase automatica caricata! Clicca "Imposta Frase" per iniziare.', 'info');
+        }
 
         function normalizeText(text) {
             // Normalize text but keep original for display
