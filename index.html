@@ -122,7 +122,7 @@
 
         .board-oval {
             border: 8px solid #ffd700;
-            border-radius: 50%;
+            border-radius: 200px;
             padding: 40px 60px;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
@@ -158,8 +158,8 @@
         }
 
         .letter-cell.space {
-            border: none;
-            background: transparent;
+            border: 3px solid #2a5298;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
         }
 
         .letter-cell.revealed {
@@ -366,6 +366,9 @@
                 <div class="guess-section">
                     <input type="text" id="guessInput" placeholder="Inserisci lettera/e" maxlength="10">
                     <button onclick="guessLetter()">Scopri Lettera</button>
+                </div>
+                <div class="guess-section" style="margin-top: 15px;">
+                    <button onclick="revealPhrase()" style="width: 100%; background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">🔓 Scopri la Frase</button>
                 </div>
             </div>
         </div>
@@ -637,6 +640,19 @@
                 showMessage('🎉 Complimenti! Hai vinto! Hai indovinato la frase! 🎉', 'success');
                 document.getElementById('guessInput').disabled = true;
             }
+        }
+
+        function revealPhrase() {
+            if (!gameState.gameStarted || gameState.gameWon) return;
+
+            const cells = document.querySelectorAll('.letter-cell[data-letter]');
+            cells.forEach(cell => {
+                cell.classList.add('revealed');
+            });
+
+            gameState.gameWon = true;
+            showMessage('🎭 Frase rivelata: ' + gameState.phrase, 'info');
+            document.getElementById('guessInput').disabled = true;
         }
 
         function showMessage(text, type) {
