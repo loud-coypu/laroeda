@@ -4,8 +4,8 @@ Un gioco per due giocatori ispirato alla Ruota della Fortuna!
 
 ## 🎮 Come Giocare
 
-1. **Giocatore 1**: Inserisci una frase (massimo 70 caratteri) e clicca "Imposta Frase"
-2. **Giocatore 2**: Indovina le lettere una alla volta inserendole e cliccando "Scopri Lettera"
+1. **Giocatore 1 - Sfidante**: Inserisci un titolo (massimo 25 caratteri totali) e una frase (massimo 50 caratteri, parole di massimo 14 lettere) e clicca "Imposta Frase"
+2. **Giocatore 2 - Concorrente**: Indovina le lettere una alla volta o più di una per volta inserendole e cliccando "Scopri Lettera"
 3. Le lettere corrette vengono rivelate in blu sul tabellone
 4. Traccia i tuoi progressi con la lista delle lettere provate (verde = corrette, rosso = sbagliate)
 5. Vinci quando tutte le lettere sono rivelate!
@@ -13,7 +13,8 @@ Un gioco per due giocatori ispirato alla Ruota della Fortuna!
 
 ## 🎯 Caratteristiche
 
-- Tabellone di gioco 14 colonne x 5 righe (70 celle totali)
+- Tabellone di gioco di quattro righe, rispettivamente 12,14,14,12 colonne, circondato da un ovale
+- Un rettangolo di due righe a sinistra sotto che mostra il titolo e le lettere già chieste, in rosso quelle che non erano presenti nel tabellone
 - Supporto completo per caratteri accentati italiani (À, È, É, Ì, Ò, Ù)
 - Design reattivo e animazioni fluide
 - Interfaccia completamente in italiano
@@ -29,16 +30,14 @@ Questo gioco è pronto per GitHub Pages! Basta abilitare GitHub Pages nelle impo
 - CSS3 (con animazioni)
 - JavaScript vanilla (nessuna libreria esterna)
 
-
-
 ## GitHub Pages
-This repository is automatically deployed to GitHub Pages on every push to the `main` branch.
 
-The site will be available [here](https://loud-coypu.github.io/laroeda/)
+Questo repository viene automaticamente pubblicato su GitHub Pages ad ogni push sul branch `main`.
 
-(The URL format is: `https://[owner].github.io/[repository-name]/`)
+Il sito sarà disponibile [qui](https://loud-coypu.github.io/laroeda/)
 
-The deployment workflow can be monitored in the Actions tab of the repository.
+(Il formato dell'URL è: `https://[owner].github.io/[nome-repository]/`)
 
+Il workflow di deployment può essere monitorato nella scheda Actions del repository.
 
 P.
